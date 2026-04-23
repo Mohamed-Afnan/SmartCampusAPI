@@ -1,12 +1,5 @@
 # Smart Campus API
 
-## Author
-Name: Afnan Unais
-
-UOW & IIT ID: w2120190 / 20231520
-
-Module: 5COSC022C.2 Client-Server Architectures
-
 ## Overview
 The Smart Campus API is a RESTful web service developed using **JAX-RS**, **Apache Tomcat**, and **Maven**. It manages campus rooms, sensors, and historical sensor readings for a Smart Campus environment.
 
@@ -210,9 +203,7 @@ Incoming request: POST http://localhost:8080/SmartCampusAPI/api/v1/sensors
 Outgoing response: POST http://localhost:8080/SmartCampusAPI/api/v1/sensors -> 201
 ```
 
-## Q&A
-
-### "Smart Campus" Sensor and Room Management API
+## Report Answers
 
 ## Part 1: Service Architecture and Setup
 
@@ -328,3 +319,8 @@ JAX-RS filters are useful for logging because logging is a cross-cutting concern
 Using a filter allows the application to log the incoming HTTP method and URI, as well as the outgoing response status code, from one central place. This avoids repeating `Logger.info()` statements inside every resource method.
 
 This approach improves maintainability because any logging change only needs to be made in one class. It also reduces the chance of forgetting to add logging when new endpoints are created.
+
+## Author
+Name: Afnan Unais
+UOW & IIT ID: w2120190 / 20231520
+Module: 5COSC022C.2 Client-Server Architectures
