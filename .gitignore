@@ -1,0 +1,7 @@
+target/
+*.class
+*.war
+.classpath
+.project
+.settings/
+nbproject/private/
