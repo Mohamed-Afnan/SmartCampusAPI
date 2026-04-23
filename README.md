@@ -103,8 +103,6 @@ http://localhost:8080/SmartCampusAPI/api/v1
 ## Important Runtime Note
 The application starts with empty collections. Rooms, sensors, and readings are created during runtime and stored in memory. After a real Tomcat restart, manually created data is reset.
 
-This design follows the coursework rule that no database technology should be used.
-
 ## API Endpoints
 
 ### Discovery
@@ -179,7 +177,6 @@ curl -X POST http://localhost:8080/SmartCampusAPI/api/v1/sensors/CO2-ENG-300-01/
 The API uses custom exception mappers to return structured JSON error responses instead of raw Java stack traces.
 
 Handled error scenarios include:
-
 - `400 Bad Request` for invalid payloads
 - `404 Not Found` for missing rooms or sensors
 - `409 Conflict` for deleting a room that still has sensors
