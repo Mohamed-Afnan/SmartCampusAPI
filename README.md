@@ -141,6 +141,7 @@ curl http://localhost:8080/SmartCampusAPI/api/v1
 ### 2. Create a Room
 ```bash
 curl -X POST http://localhost:8080/SmartCampusAPI/api/v1/rooms ^
+
   -H "Content-Type: application/json" ^
   -H "Accept: application/json" ^
   -d "{\"id\":\"ENG-300\",\"name\":\"Engineering Smart Lab\",\"capacity\":30}"
@@ -154,6 +155,7 @@ curl http://localhost:8080/SmartCampusAPI/api/v1/rooms
 ### 4. Create an Active Sensor
 ```bash
 curl -X POST http://localhost:8080/SmartCampusAPI/api/v1/sensors ^
+
   -H "Content-Type: application/json" ^
   -H "Accept: application/json" ^
   -d "{\"id\":\"CO2-ENG-300-01\",\"type\":\"CO2\",\"status\":\"ACTIVE\",\"currentValue\":418.2,\"roomId\":\"ENG-300\"}"
@@ -167,6 +169,7 @@ curl "http://localhost:8080/SmartCampusAPI/api/v1/sensors?type=CO2"
 ### 6. Add a Sensor Reading
 ```bash
 curl -X POST http://localhost:8080/SmartCampusAPI/api/v1/sensors/CO2-ENG-300-01/readings ^
+
   -H "Content-Type: application/json" ^
   -H "Accept: application/json" ^
   -d "{\"value\":421.7}"
@@ -191,13 +194,6 @@ Logged information includes:
 - Incoming HTTP method
 - Incoming request URI
 - Outgoing response status code
-
-Example:
-
-```text
-Incoming request: POST http://localhost:8080/SmartCampusAPI/api/v1/sensors
-Outgoing response: POST http://localhost:8080/SmartCampusAPI/api/v1/sensors -> 201
-```
 
 ## Report Answers
 
