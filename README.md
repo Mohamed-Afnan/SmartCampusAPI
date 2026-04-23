@@ -1,6 +1,5 @@
 # Smart Campus API
 
-## Overview
 The Smart Campus API is a RESTful web service developed using **JAX-RS**, **Apache Tomcat**, and **Maven**. It manages campus rooms, sensors, and historical sensor readings for a Smart Campus environment.
 
 The API supports:
