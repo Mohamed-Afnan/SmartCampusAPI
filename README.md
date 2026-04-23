@@ -318,5 +318,7 @@ This approach improves maintainability because any logging change only needs to 
 
 ## Author
 Name: Afnan Unais
+
 UOW & IIT ID: w2120190 / 20231520
+
 Module: 5COSC022C.2 Client-Server Architectures
