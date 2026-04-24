@@ -199,7 +199,7 @@ Logged information includes:
 
 ## Part 1: Service Architecture and Setup
 
-### 1. Project and Application Configuration - JAX-RS Resource Lifecycle
+### 1. Project and Application Configuration
 In JAX-RS, resource classes follow a per-request lifecycle by default. This means a new instance of the resource class is usually created for each incoming HTTP request. Therefore, resource classes are not treated as singletons unless they are explicitly configured that way.
 
 This lifecycle improves safety because each request works with its own resource object. However, the Smart Campus API needs data to remain available across multiple requests. For that reason, the application does not store the main data inside resource class instance variables. Instead, it stores shared data in `SmartCampusStore`.
@@ -209,7 +209,7 @@ The store uses in-memory data structures such as maps for rooms, sensors, and re
 For example, when a new sensor is registered, the sensor must be added to the sensor collection and its ID must also be linked to the correct room. Synchronization helps keep these related updates consistent.
 
 
-### 2. Discovery Endpoint - HATEOAS
+### 2. Discovery Endpoint
 Hypermedia, also known as HATEOAS, is considered an advanced feature of RESTful design because it allows an API response to guide the client through available resources using links. Instead of forcing the client to know every endpoint in advance, the API can return useful navigation links in the response.
 
 In this project, the discovery endpoint at `/api/v1` returns API metadata such as the API name, version, contact details, and links to the main resource collections such as rooms and sensors.
@@ -219,7 +219,7 @@ This is helpful for client developers because they do not need to depend only on
 
 ## Part 2: Room Management
 
-### 1. Room Resource Implementation - Returning IDs vs Full Objects
+### 1. Room Resource Implementation
 Returning only room IDs reduces the size of the response. This can save bandwidth, especially if the system contains many rooms. However, it also means the client may need to make extra requests to retrieve full details for each room.
 
 Returning full room objects requires a larger response, but it makes client-side development simpler because the client receives all useful room information in one request.
@@ -227,7 +227,7 @@ Returning full room objects requires a larger response, but it makes client-side
 In this Smart Campus API, full room objects are returned because the data size is small and it makes testing, Postman demonstration, and client interaction clearer.
 
 
-### 2. Room Deletion and Safety Logic - DELETE Idempotency
+### 2. Room Deletion and Safety Logic
 The `DELETE` operation in this implementation is idempotent in terms of the final state of the system. If a room exists and has no sensors assigned to it, the first `DELETE` request removes the room.
 
 If the same `DELETE` request is sent again, the room no longer exists, so the API returns `404 Not Found`. Although the response status changes after the first request, the final state of the system remains the same because the room is still absent.
@@ -237,7 +237,7 @@ Therefore, the operation is still considered idempotent because repeated identic
 
 ## Part 3: Sensor Management
 
-### 1. Sensor Resource and Integrity - `@Consumes` and Media Type Mismatch
+### 1. Sensor Resource and Integrity
 The `@Consumes(MediaType.APPLICATION_JSON)` annotation tells JAX-RS that the method expects a JSON request body. This is used on methods such as `POST /sensors` and `POST /rooms` to make sure the API receives data in the correct format.
 
 If a client sends data using another media type, such as `text/plain` or `application/xml`, JAX-RS may reject the request because the method is designed to consume JSON. In this situation, the server can respond with `415 Unsupported Media Type` or a related request parsing error before the resource method is executed.
@@ -245,7 +245,7 @@ If a client sends data using another media type, such as `text/plain` or `applic
 This protects the API contract because the server only processes request bodies that match the expected JSON format.
 
 
-### 2. Filtered Retrieval and Search - `@QueryParam` vs `@PathParam`
+### 2. Filtered Retrieval and Search
 Using `@QueryParam` for filtering is more flexible for collection resources. For example, `/api/v1/sensors?type=CO2` clearly means the client wants to retrieve sensors from the sensor collection, but only those matching the `CO2` type.
 
 If the filter is placed inside the path, such as `/api/v1/sensors/type/CO2`, the URL becomes less flexible because it treats the filter like part of the resource hierarchy. This becomes harder to manage when more filters are added later.
@@ -255,7 +255,7 @@ Query parameters are generally better for searching and filtering because they a
 
 ## Part 4: Sensor Readings
 
-### 1. Deep Nesting with Sub-Resource Locator - Benefits
+### 1. Deep Nesting with Sub-Resource Locator
 The sub-resource locator pattern allows nested resources such as `/sensors/{sensorId}/readings` to be delegated to a separate resource class. In this project, `SensorResource` handles the main sensor endpoints, while `SensorReadingResource` handles the reading history for a specific sensor.
 
 This design improves separation of responsibility. `SensorResource` focuses on sensor registration and retrieval, while `SensorReadingResource` focuses on adding and retrieving readings.
@@ -263,7 +263,7 @@ This design improves separation of responsibility. `SensorResource` focuses on s
 If all nested paths were implemented inside one large resource class, the code would become harder to read, maintain, and extend. By using a separate sub-resource class, the API structure remains cleaner and closer to the real resource hierarchy.
 
 
-### 2. Historical Data Management - Updating `currentValue`
+### 2. Historical Data Management
 The Smart Campus API stores historical readings for each sensor. When a client posts a new reading to `/sensors/{sensorId}/readings`, the reading is added to that sensor's reading history.
 
 A successful reading post also updates the parent sensor's `currentValue`. This is important because the sensor resource should always show the latest measurement without requiring the client to manually inspect the full reading history.
@@ -273,7 +273,7 @@ This keeps the sensor data consistent across the API. The reading history stores
 
 ## Part 5: Advanced Error Handling, Exception Mapping and Logging
 
-### 1. Resource Conflict - RoomNotEmptyException
+### 1. Resource Conflict
 The API prevents a room from being deleted if it still has sensors assigned to it. This rule avoids orphaned sensor records that refer to a room that no longer exists.
 
 When a client sends `DELETE /rooms/{roomId}` for a room that still contains sensors, the application throws `RoomNotEmptyException`. The exception mapper converts this into a structured JSON response with HTTP `409 Conflict`.
@@ -281,7 +281,7 @@ When a client sends `DELETE /rooms/{roomId}` for a room that still contains sens
 This status code is suitable because the request conflicts with the current state of the resource.
 
 
-### 2. Dependency Validation - HTTP 422 and 404
+### 2. Dependency Validation
 HTTP `422 Unprocessable Entity` is more appropriate than `404 Not Found` when the request URL is valid but a reference inside the JSON payload is invalid.
 
 For example, `POST /sensors` is a valid endpoint, and the JSON structure may be correct. However, if the `roomId` in the request body refers to a room that does not exist, the server cannot process the request logically.
@@ -289,7 +289,7 @@ For example, `POST /sensors` is a valid endpoint, and the JSON structure may be 
 A `404` usually means the requested URL or resource itself could not be found. In this case, the endpoint exists, but the linked room inside the payload does not. Therefore, `422` communicates the problem more accurately.
 
 
-### 3. State Constraint - SensorUnavailableException
+### 3. State Constraint
 If a sensor has the status `MAINTENANCE`, it represents a device that is unavailable and cannot accept new readings. When a client tries to post a reading to a maintenance sensor, the API throws `SensorUnavailableException`.
 
 This exception is mapped to HTTP `403 Forbidden` because the client is calling a valid endpoint, but the current state of the sensor does not allow the requested operation.
@@ -297,7 +297,7 @@ This exception is mapped to HTTP `403 Forbidden` because the client is calling a
 The response is returned as structured JSON, so the client receives a clear reason instead of a generic server error.
 
 
-### 4. Global Safety Net - Hiding Stack Traces
+### 4. Global Safety Net
 Exposing internal Java stack traces through an API is dangerous because it can reveal technical details about the application. A stack trace may show package names, class names, file paths, method names, framework details, and server-side logic.
 
 Attackers can use this information to understand how the system is built and search for weaknesses. It may also reveal details about libraries, frameworks, or deployment structure, such as Jersey or Tomcat.
